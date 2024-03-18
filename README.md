@@ -28,7 +28,7 @@ Inherit from TimeBasedStampModel to add automatic creation, update, and soft del
 ```python
 
 from django.db import models
-from DjangoEssentials.models import TimeBasedStampModel
+from djangoessentials import TimeBasedStampModel
 
 class YourModel(TimeBasedStampModel):
     name = models.CharField(max_length=255)
@@ -44,6 +44,16 @@ Configure your Django project to use MyS3Storage for handling media files with A
 # settings.py
 
 DEFAULT_FILE_STORAGE = 'DjangoEssentials.storage.MyS3Storage'
+```
+Than
+
+```python
+from django.db import models
+from djangoessentials import MyS3Storage
+
+class MyModel(models.Model):
+    document = models.FileField(upload_to='documents/', storage=MyS3Storage)
+    # Add your fields here
 ```
 
 ### Advanced Usage
