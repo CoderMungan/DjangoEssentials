@@ -21,7 +21,7 @@ class MyS3Storage(S3Boto3Storage):
 
 
 #CustomUser Model
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager, TimeBasedStampModel):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
             raise ValueError('The Username field must be set')
@@ -36,7 +36,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(username, password, **extra_fields)
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, PermissionsMixin, TimeBasedStampModel):
     username = models.CharField(max_length=150, unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
