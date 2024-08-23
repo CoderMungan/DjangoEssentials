@@ -2,3 +2,5 @@ DjangoEssentials.egg-info/
 dist/
 build/
 setup.py
+token.txt
+

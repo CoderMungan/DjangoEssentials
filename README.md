@@ -1,5 +1,7 @@
 # DjangoEssentials
 
+[Join Our Community - Kampus](https://discord.gg/kampus)
+
 DjangoEssentials is a Python library designed to streamline and enhance the development process of Django applications. It offers a collection of commonly used Django models and deployment settings, encapsulating repetitive patterns and configurations into a reusable package. The library is intended to evolve with contributions from the community, making it a collaborative project.
 
 ## Features
@@ -40,6 +42,7 @@ class YourModel(TimeBasedStampModel):
 
 Configure your Django project to use MyS3Storage for handling media files with Amazon S3.
 Example:
+
 ```python
 # settings.py
 USE_S3 = True
@@ -65,6 +68,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static/'),
 ]
 ```
+
 Than
 
 ```python
@@ -77,7 +81,8 @@ class MyModel(models.Model):
 ```
 
 - **CustomUser Model**
-Usages:
+  Usages:
+
 ```python
 #settings.py
 AUTH_USER_MODEL = 'yourapp.CustomUser'
@@ -101,13 +106,16 @@ class YourModelForm(forms.ModelForm):
 DjangoEssentials aims to provide more utilities and helpers over time, driven by community contributions and the evolving needs of Django developers.
 
 ### Contributing
+
 We welcome contributions from the community, whether it's adding new features, improving documentation, or reporting bugs. Please follow these steps to contribute:
 
 Fork the repository.
+
 - Create your feature branch (git checkout -b feature/AmazingFeature).
 - Commit your changes (git commit -am 'Add some AmazingFeature').
 - Push to the branch (git push origin feature/AmazingFeature).
 - Open a Pull Request.
 
 ### Contact
-For questions or additional information, please reach out to codermungan@gmail.com
+
+For questions or additional information, please reach out to <codermungan@gmail.com>
