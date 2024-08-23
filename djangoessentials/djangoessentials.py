@@ -42,9 +42,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+   
 
     objects = CustomUserManager()
 
