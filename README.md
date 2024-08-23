@@ -76,6 +76,26 @@ class MyModel(models.Model):
     # Add your fields here
 ```
 
+- **CustomUser Model**
+Usages:
+```python
+#settings.py
+AUTH_USER_MODEL = 'yourapp.CustomUser'
+```
+
+```python
+#example
+from django import forms
+from djangoessentials import CustomUser
+
+class YourModelForm(forms.ModelForm):
+    password1 = forms.CharField()
+    password2 = forms.CharField()
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'phone_number', 'date_of_birth')
+```
+
 ### Advanced Usage
 
 DjangoEssentials aims to provide more utilities and helpers over time, driven by community contributions and the evolving needs of Django developers.
