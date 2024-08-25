@@ -1,1 +1,2 @@
-from .djangoessentials import TimeBasedStampModel, MyS3Storage
+from .models import TimeBasedStampModel, CustomUser
+from .djangoessentials import MyS3Storage
