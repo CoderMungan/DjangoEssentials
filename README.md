@@ -1,75 +1,183 @@
-# DjangoEssentials
+**DjangoEssentials**
 
 [Join Our Community - Kampus](https://discord.gg/kampus)
 
-DjangoEssentials is a Python library designed to streamline and enhance the development process of Django applications. It offers a collection of commonly used Django models and deployment settings, encapsulating repetitive patterns and configurations into a reusable package. The library is intended to evolve with contributions from the community, making it a collaborative project.
+**DjangoEssentials** is a Python library designed to streamline and simplify the development of Django applications. This library supports modern software development approaches, such as the **repository-service pattern**, and provides a more modular structure by preventing code repetition. Additionally, it includes essential features such as **model management, data access, and Amazon S3 storage integration**.
 
-## Features
+**🚀 Features**
 
-- **TimeBasedStampModel:** An abstract model providing time-based fields for tracking creation, update, and deletion times of model instances.
-- **MyS3Storage:** A custom storage class for Django, facilitating integration with Amazon S3 for media storage, with features such as non-overwriting of files with the same name and public read access by default.
+**1️⃣ Repository-Service Pattern**
 
-## Getting Started
+•	**BaseRepository:** A base repository class that manages CRUD operations for Django models.
 
-Below are instructions on how to install DjangoEssentials and examples of how to use its features in your Django projects.
+•	**BaseService:** A service layer that utilizes repositories to manage business logic and reduce code duplication.
 
-### Installation
+**2️⃣ Model Utilities**
 
-Install DjangoEssentials using pip:
+•	**TimeBasedStampModel:** An abstract model class that automatically tracks **creation, update, and deletion timestamps**.
 
-```bash
+**3️⃣ Amazon S3 Storage Integration**
+
+•	**MyS3Storage:** A custom storage class for **handling media files with Amazon S3** in Django applications.
+
+**📥 Installation**
+
+Install the library using pip:
+
+```python
 pip install DjangoEssentials
 ```
 
-### Usage
+**📌 Usage**
 
-- **TimeBasedStampModel**
+**1️⃣ Using the Repository-Service Pattern**
 
-Inherit from TimeBasedStampModel to add automatic creation, update, and soft deletion timestamps to your models.
+This pattern separates the **data access layer** from the **business logic layer**, making Django applications cleaner and more maintainable.
+
+**📌 Model Example**
+
+Let’s create a **simple Django model** using TimeBasedStampModel:
 
 ```python
+from django.db import models
+from djangoessentials import TimeBasedStampModel
 
+class Product(TimeBasedStampModel):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+```
+
+**📌 Repository Layer**
+
+The repository interacts with Django models and manages database operations.
+
+```python
+from djangoessentials.repository import BaseRepository
+from myapp.models import Product
+
+class ProductRepository(BaseRepository[Product]):
+    def __init__(self):
+        super().__init__(Product)
+```
+
+**📌 Service Layer**
+
+The service layer uses the repository to manage business logic and reduce code duplication.
+
+```python
+from djangoessentials.service import BaseService
+from myapp.repositories import ProductRepository
+
+class ProductService(BaseService[ProductRepository]):
+    def __init__(self):
+        super().__init__(ProductRepository())
+
+    def get_available_products(self):
+        return self._repository.filter(stock__gt=0)
+```
+
+**📌 Serializer for DRF**
+
+To expose this model via an API, let’s create a serializer.
+
+```python
+from rest_framework import serializers
+from myapp.models import Product
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+```
+
+**📌 ViewSet for Django REST Framework**
+
+To expose the service through an API, we can use **ModelViewSet**.
+
+```python
+from rest_framework import viewsets
+from myapp.services import ProductService
+from myapp.serializers import ProductSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductSerializer
+    queryset = ProductService().get_all()
+    
+    def get_queryset(self):
+        """
+        Optionally filter the queryset based on stock availability.
+        """
+        service = ProductService()
+        available_only = self.request.query_params.get('available_only', None)
+        if available_only:
+            return service.get_available_products()
+        return service.get_all()
+```
+
+**📌 Register the ViewSet in Django’s Router**
+
+To enable API endpoints, register the viewset in urls.py.
+
+```python
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from myapp.views import ProductViewSet
+
+router = DefaultRouter()
+router.register(r'products', ProductViewSet)
+
+urlpatterns = [
+    path('api/', include(router.urls)),
+]
+```
+
+**2️⃣ Using TimeBasedStampModel**
+
+To add automatic **created_at, updated_at, and deleted_at** fields to your model:
+
+```python
 from django.db import models
 from djangoessentials import TimeBasedStampModel
 
 class YourModel(TimeBasedStampModel):
     name = models.CharField(max_length=255)
-    # Add your fields here
-
+    # Add your custom fields here
 ```
 
-- **MyS3Storage**
+This model **automatically tracks timestamps** for each record.
 
-Configure your Django project to use MyS3Storage for handling media files with Amazon S3.
-Example:
+**3️⃣ Amazon S3 Storage Integration**
+
+To use **Amazon S3 as the media storage solution**, configure your Django project as follows.
+
+**📌 Add to settings.py**
 
 ```python
-# settings.py
+import os
+
 USE_S3 = True
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 if USE_S3:
-    # aws settings
-    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  ## get your aws access key
-    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  ## get your aws secret access key
-    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")  ## Your bucket name
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    # s3 public media settings
+
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static/'),
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 ```
 
-Than
+**📌 Use in a Model**
 
 ```python
 from django.db import models
@@ -77,45 +185,42 @@ from djangoessentials import MyS3Storage
 
 class MyModel(models.Model):
     document = models.FileField(upload_to='documents/', storage=MyS3Storage)
-    # Add your fields here
 ```
 
-- **CustomUser Model**
-  Usages:
+This setup ensures that files are **automatically uploaded to Amazon S3**.
+
+**🎯 Advanced Usage**
+
+DjangoEssentials is designed to grow with the community’s needs. Over time, more utilities and helpers will be added to **optimize Django development workflows**.
+
+**🤝 Contributing**
+
+We welcome community contributions! If you’d like to add new features, improve documentation, or report bugs, follow these steps:
+
+1.	**Fork the repository.**
+
+2.	**Create a feature branch:**
 
 ```python
-#settings.py
-AUTH_USER_MODEL = 'yourapp.CustomUser'
+git checkout -b feature/AmazingFeature
 ```
+
+3.	**Commit your changes:**
 
 ```python
-#example
-from django import forms
-from djangoessentials import CustomUser
-
-class YourModelForm(forms.ModelForm):
-    password1 = forms.CharField()
-    password2 = forms.CharField()
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'phone_number', 'date_of_birth')
+git commit -am "Add some AmazingFeature"
 ```
 
-### Advanced Usage
+4.	**Push to the branch:**
 
-DjangoEssentials aims to provide more utilities and helpers over time, driven by community contributions and the evolving needs of Django developers.
+```python
+git push origin feature/AmazingFeature
+```
 
-### Contributing
+5.	**Open a Pull Request.**
 
-We welcome contributions from the community, whether it's adding new features, improving documentation, or reporting bugs. Please follow these steps to contribute:
+**📩 Contact**
 
-Fork the repository.
+For questions or further information, feel free to contact us:
 
-- Create your feature branch (git checkout -b feature/AmazingFeature).
-- Commit your changes (git commit -am 'Add some AmazingFeature').
-- Push to the branch (git push origin feature/AmazingFeature).
-- Open a Pull Request.
-
-### Contact
-
-For questions or additional information, please reach out to <codermungan@gmail.com>
+📧 [**codermungan@gmail.com**](mailto:codermungan@gmail.com)

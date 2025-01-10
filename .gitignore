@@ -3,4 +3,5 @@ dist/
 build/
 setup.py
 token.txt
-
+pyproject.toml
+.venv/
