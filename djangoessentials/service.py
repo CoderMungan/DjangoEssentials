@@ -15,8 +15,8 @@ class BaseService(ABC, Generic[R]):
     def get_by_id(self, obj_id: int):
         return self._repository.get_by_id(obj_id)
 
-    def create(self, data: dict):
-        return self._repository.create(data)
+    def create(self, **data):
+        return self._repository.create(**data)
 
     def update(self, obj_id: int, data: dict):
         return self._repository.update(obj_id, data)

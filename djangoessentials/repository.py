@@ -25,7 +25,7 @@ class BaseRepository(ABC, Generic[T]):
         except ObjectDoesNotExist:
             return None
 
-    def create(self, data: dict) -> T:
+    def create(self, **data) -> T:
         return self._model.objects.create(**data)
 
     def bulk_create(self, data_list: List[dict]) -> List[T]:
